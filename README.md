@@ -1,5 +1,6 @@
 # yahooFinance
 Python Module for Yahoo Finance Data Analysis
+
 Edit Notes: 
   - Break master into pieces with a separate file for each function? 
   - Ensure PEP 8 standards are upheld. 
