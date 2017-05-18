@@ -312,26 +312,3 @@ def overNightRisk(df, filterSet = False):
     overNightRisk['overNightRiskChance'] = overNightRiskChance
     print(df.closeToOpenPercent.describe())
     return overNightRisk
-
-                        
-        
-    
-
-
-          
-        
-        
-    
-    
-                    
-            
-        
-        
-    
-    
-
-
-
-
-
-
