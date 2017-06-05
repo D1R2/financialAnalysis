@@ -1,11 +1,7 @@
-#Custom Yahoo Data Analysis Tool Package
-#Edit Notes: Verify risk adjusted returns code and such is correct.
-    # Find a better way to resample in getYahoo
-    # Change riskAdjReturns to return a percentage number. Need to add maxRisk input and get %win/loss values. 
+#Custom Finance Data Analysis Package
 
 import pandas as pd
 import numpy as np
-
 
 def openDev(df, filterSet = False):
     #Calculate the simple probability of a given deviation from the open price.
@@ -43,49 +39,72 @@ def openDev(df, filterSet = False):
 
     return dfOpenDev
 
-def correlation(ticker1, ticker2, granularity, startMonth, startDay, startYear,
-             endMonth, endDay, endYear, index=False):
+def correlationNew(df1, df2, ticker1, ticker2, col, toCol):
+    #Takes col to toCol movement (ie. Open to Close).
+    #Assumes data is Newest to Oldest going down the list. 
     #Continued Improvement Notes: Improve data output format.
         #Add note detailing what this actually does. 
     
-    stringTicker1 = str(ticker1)
-    stringTicker2 = str(ticker2)
 
-    df1 = getYahoo(ticker1, granularity, startMonth, startDay,
-                   startYear, endMonth, endDay, endYear, index)
-    df2 = getYahoo(ticker2, granularity, startMonth, startDay,
-                   startYear, endMonth, endDay, endYear, index)
+    tickers = [[df1, ticker1], [df2, ticker2]]
 
-    tickerOnePercentChange = (df1['Close'] - df1['Open']) / df1['Close'] * 100
-    tickerTwoPercentChange = (df2['Close'] - df2['Open']) / df2['Close'] * 100
+    df = pd.DataFrame()
 
-    df3 = pd.DataFrame()
-    df3[stringTicker1] = tickerOnePercentChange
-    df3[stringTicker2] = tickerTwoPercentChange
-    df3.to_pickle("pickle.pickle")
-    df = pd.read_pickle("pickle.pickle")
-    dfCorr = df.corr()
-
-    directionalCorr = 0
-    n = 0
-    while n < len(df3):
-        if df3[stringTicker1][n] > 0 and df3[stringTicker2][n] > 0:
-            directionalCorr += 1
-            n+=1
-        elif df3[stringTicker1][n] < 0 and df3[stringTicker2][n] < 0:
-            directionalCorr +=1
-            n+=1
+    for dataFrame, ticker in tickers:
+        dfTicker = dataFrame
+        #Ticker1 PercentChange = col 7, ABS Ticker1 = col 8, Ticker2 PercentChange = col 9, ABS Percent Change = col 10
+        if col == toCol:
+            df['{} PercentChange'.format(ticker)] = (dfTicker[toCol] - dfTicker[col].shift(-1)) / dfTicker[col].shift(-1)
         else:
-            n+=1
-    directionalCorrPercent = directionalCorr / len(df3) * 100
-
-    df4 = pd.DataFrame()
-    df4[stringTicker1+' ABS'] = abs(df3[stringTicker1])
-    df4[stringTicker2+' ABS'] = abs(df3[stringTicker2])
-
-    absDfCorr = df4.corr()
+            df['{} PercentChange'.format(ticker)] = (dfTicker[toCol] - dfTicker[col]) / dfTicker[col]
+        df['{} AbsPercentChange'.format(ticker)] = abs(df['{} PercentChange'.format(ticker)])
         
-    return [dfCorr, absDfCorr, 'Directional Correlation %:', directionalCorrPercent, '%']
+    df.dropna(inplace = True)
+    dfLength = len(df)
+
+    
+    t1Up = df[df.iloc[:,0]>0]
+    bothUp = t1Up[t1Up.iloc[:,2]>0]
+    bothUp['{} Change - {} Change'.format(ticker2, ticker1)] = bothUp.iloc[:,2] - bothUp.iloc[:,0] #bothUp.iloc[:,4]
+    
+    t1Down = df[df.iloc[:,0]<0]
+    bothDown = t1Down[t1Down.iloc[:,2]<0]
+    bothDown['{} Change - {} Change'.format(ticker2, ticker1)] = bothDown.iloc[:,2] - bothDown.iloc[:,0] #bothDown.iloc[:,4]
+
+    df['AbsValueDif'] = df.iloc[:,3] - df.iloc[:,1] #Checks if abs val move of T2 is greater than T1. 
+
+    upCor = len(bothUp) / len(t1Up)
+    upCorData = len(bothUp)
+    upCorMeanDif = bothUp.iloc[:,4].mean()
+    upCorStdDif = bothUp.iloc[:,4].std()
+    
+    downCor  = len(bothDown) / len(t1Down)
+    downCorData = len(bothDown)
+    downCorMeanDif = bothDown.iloc[:,4].mean()
+    downCorStdDif = bothDown.iloc[:,4].std()
+
+    dirCor = upCor + downCor
+    dirCorData = upCorData + downCorData
+
+    absGreater = len(df[df['AbsValueDif']>0]) / len(df)
+    absLess = 1 - absGreater
+    absDifMean = df['AbsValueDif'].mean()
+
+    dfReturned = pd.DataFrame({'Ticker1 vs Ticker2': '{} vs {}'.format(ticker1, ticker2),
+                      'Col to Col': ['{} to {}'.format(col, toCol)],
+                      'dfLength': [dfLength],
+                      'upCor':[upCor],
+                      'upCorData':[upCorData],
+                      'upCorMeanDif':[upCorMeanDif],
+                      'upCorStdDif':[upCorStdDif],
+                      'downCor':[downCor],
+                      'downCorData':[downCorData],
+                      'downCorMeanDif':[downCorMeanDif],
+                      'downCorStdDif':[downCorStdDif],
+                      'absGreater':[absGreater],
+                      'absLess':[absLess],
+                      'absDifMean':[absDifMean]})
+    return dfReturned
 
 def riskAdjustedReturns(df, currentPrice, target1, criteria, win,
                         loss, target2 = False, chanceOnly = False):
