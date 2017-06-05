@@ -39,7 +39,7 @@ def openDev(df, filterSet = False):
 
     return dfOpenDev
 
-def correlationNew(df1, df2, ticker1, ticker2, col, toCol):
+def correlation(df1, df2, ticker1, ticker2, col, toCol):
     #Takes col to toCol movement (ie. Open to Close).
     #Assumes data is Newest to Oldest going down the list. 
     #Continued Improvement Notes: Improve data output format.
