@@ -3,12 +3,12 @@
 import pandas as pd
 import numpy as np
 
-def openDev(df, filterSet = False):
+def simpleOpenDevProbability(df, filterSet = False):
     #Calculate the simple probability of a given deviation from the open price.
     #Goal is to return a df with probabilities of given move above or below open in percentage terms.
 
     if filterSet == False:
-        filterSet = [-.05, -.045, -.04, -.035, -.03, -.025, -.02, -.0175, -.015, -.0125, -.01
+        filterSet = [-.05, -.045, -.04, -.035, -.03, -.025, -.02, -.0175, -.015, -.0125, -.01,
                 -.009, -.008, -.007, -.006, -.005, -.004, -.003, -.002, -.001, 0, .001,
                 .002, .003, .004, .005, .006, .007, .008, .009, .01, .0125, .015, .0175, .02,
                 .025, .03, .035, .04, .045, .05]
@@ -52,7 +52,6 @@ def correlation(df1, df2, ticker1, ticker2, col, toCol):
 
     for dataFrame, ticker in tickers:
         dfTicker = dataFrame
-        #Ticker1 PercentChange = col 7, ABS Ticker1 = col 8, Ticker2 PercentChange = col 9, ABS Percent Change = col 10
         if col == toCol:
             df['{} PercentChange'.format(ticker)] = (dfTicker[toCol] - dfTicker[col].shift(-1)) / dfTicker[col].shift(-1)
         else:
