@@ -1,4 +1,4 @@
-# yahooFinance
+# financialAnalysis
 Python Module for Finance Data Analysis
 
 Edit Notes: 
