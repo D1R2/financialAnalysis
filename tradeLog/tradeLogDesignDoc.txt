@@ -1,0 +1,54 @@
+Trade Log: A tool to log trades in conjunction with Think or Swim trading platform exports. 
+		- Will be built using Python. I assume I will be using a comdination of pyQT and SQLite, both of which I need to learn. 
+		- Goal is to have a standalone local program. 
+
+
+(A): Three Main Windows: 
+	1 - Open Trades
+	2 - Closed Trades: Simple
+	3 - Closed Trades: Full
+
+(A1) Open Trades: 
+	Purpose: Allow user to add New Trades and view, edit, and close Open Trades. 
+	
+	"New Trade" Button: Located at bottom of window. 
+		Opens dialogue box with input fields (listed as Field:DataType, * = Optional):
+			Trader: String
+			Type: String
+			Ticker: String or List (May be multiple Tickers)
+			Subtype*: String or List (May be multiple subtypes)
+			Title*: String
+			Add Legs: Legs will be copy-pasted from an excel sheet and will contain: 
+				Date, Time, Descriiption, Misc. Fees, Commissions & Fees, Amount
+					- Will want to copy-paste multiple legs at a time. 
+		BUTTONS: 
+			- 'Submit': Stores trade and displays it in the Open Trades Window. Clears form and closes New Trade Window. 
+			- 'Cancel': Clears form and closes New Trade Window. 
+			- 'Close Trade': 
+				- Adds Fields: 
+					Open Date = Date of First Leg
+					Close Date = Date of last leg
+					Open Time = Time of first Leg
+					Close Time = Time of last leg
+					Gross Profit = Sum of all Amount entries. 
+					Net Profit = Sum of all Misc Fees, Commissions, and Amount  entries. 
+					Acct Balance: 
+						First = Beginning Acct Balance + Net Profit of first trade. 
+						All Else = Previous Account Balance + Net Profit. 
+				- Store Trade with all legs included in 'Closed Trades Full'.
+				- Store Trade Summary in Closed Trades: Simple
+					Trade Summary = Trader, Type, Ticker, Subtypes, Title, Open Date, Close Date, Open Time, Close Time, Net Misc. Fees, Net Misc. Commissions, Gross Profit, Net Profit, Acct Balance, Notes
+	
+	Main View: Open Trades List
+		- List of open trades. Trades listed by description or optional Title.
+			- Double clicking a trade allows it to be edited. 
+			- Selecting a trade displays options:
+				- Edit Trade: Allows editing of current information or inputation of more legs. 
+				- Close Trade: See above. 
+				- Delete Trade: Removes trade from list and Database. 
+(A2) Closed Trades: Simple
+	Displays closed trades database and allows export to csv or similar. 
+
+(A3) Closed Trades: Full
+	Displays list of closed trades and allows them to be edited.
+		- When trades are edited, it replaces the entry in "Closed Trades: Full", and "Closed Trades: Simple"
