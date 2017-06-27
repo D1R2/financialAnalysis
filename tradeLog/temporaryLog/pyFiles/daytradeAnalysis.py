@@ -1,8 +1,8 @@
 import pandas as pd
 
-df = pd.read_csv(r"C:\Users\David\Desktop\gitHome\trading\tradeResults2.csv")
+df = pd.read_csv()
 
-filtered = df[df['Trader'] == 'DAVID']
+filtered = df[df['Trader'] == []
 dayTrades = filtered[filtered['Type'] == 'DAYTRADE']
 
 dayTrades['Percent PL'] = dayTrades['Net PL'] / dayTrades['Open Cost'] * (-1)

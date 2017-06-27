@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv(r"C:\Users\David\Desktop\gitHome\trading\tradeResults.csv",
+df = pd.read_csv(,
                  encoding = "ISO-8859-15")
 
 #Totals
@@ -23,7 +23,10 @@ for t in tradeTypes:
     print('{} Net PL = {}'.format(t, typesProfit))
 
 #By Trader
-traders = ['JOHN', 'DAVID', 'BOTH']
+trader1 = 
+trader2 =
+trader3 = 
+traders = [trader1, trader2, trader3]
 for trader in traders:
     print("")
     print(trader)

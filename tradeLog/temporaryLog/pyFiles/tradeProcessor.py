@@ -1,7 +1,7 @@
 import pandas as pd
 #Need to change order of columns in the 'Clean Data' portion of the module. 
 
-filepath = r"C:\Users\David\Desktop\gitHome\trading\Book4.csv"
+filepath = 
 tradeList = pd.read_csv(filepath)
 tradeList.fillna(0, inplace=True)
 
