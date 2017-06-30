@@ -1,28 +1,29 @@
 import pandas as pd
 import sqlite3
 
-def transactions(csvPath, databasePaths, destination): 
-
-    #Import csv to DF:
+def transactions(csvPath, databasePaths, destination):
+    # Import csv to DF:
     df = pd.read_csv(csvPath)
     df.columns = ['Date', 'Time', 'Type', 'Reference', 'Description', 'MiscFees', 'Commissions', 'Amount', 'Balance']
-    
-    #Store in Master and Backup Database:
+
+    # Clean and Output:
+    dfClean = df.copy()
+    dfClean['feesAndCommissions'] = dfClean['MiscFees'] + dfClean['Commissions']
+    dfClean = dfClean[(dfClean['Type'] == 'TRD') | (dfClean['Type'] == 'RAD')]
+    dfClean = dfClean[['Date', 'Time', 'Description', 'feesAndCommissions', 'Amount']]
+    dfClean.to_csv(destination, index=False)
+
+    # Store in Master and Backup Database:
     for x in databasePaths:
         conn = sqlite3.connect(x)
         conn.execute("""CREATE TABLE IF NOT EXISTS transactions (Date TEXT, Time TEXT, Type TEXT, Reference INTEGER, Description TEXT,
-                    MiscFees REAL, Commissions REAL, Amount REAL, Balance REAL)""")
-        conn.commit()
-        df.to_sql('transactions', conn, index = False, if_exists='append')
+                        MiscFees REAL, Commissions REAL, Amount REAL, Balance REAL)""")
+        conn.execute("""CREATE TABLE IF NOT EXISTS cleanTransactions (Date TEXT, Time TEXT, Description TEXT,
+                                feesAndCommissions REAL, Amount REAL)""")
+        df.to_sql('transactions', conn, index=False, if_exists='append')
+        dfClean.to_sql('cleanTransactions', conn, index=False, if_exists='append')
         conn.commit()
         conn.close()
-    
-    #Clean and Output:
-    
-    df['FEES & COMMISSIONS'] = df['MiscFees'] + df['Commissions']
-    df = df[(df['Type'] == 'TRD') | (df['Type'] == 'RAD')]
-    df = df[['Date', 'Time', 'Description', 'Commissions', 'Amount']]
-    df.to_csv(destination, index = False)
     return df
 
 class trade:
@@ -45,7 +46,7 @@ class trade:
        self.returnOnExpectedRisk = None #
        self.returnOnMaxRisk = None #
        self.transactions = None #
-       sel.trade = None #
+       self.trade = None #
        
         
     def inputs(self, trader=None, types=None, tickers=None, notes=None, expectedRisk=None, maxRisk=None, optionType=None):
@@ -92,5 +93,7 @@ class trade:
             conn.commit()
             tradeList.to_sql('fullTrades', conn, index = False, if_exists='append')
             conn.close()
+
+
 
         
