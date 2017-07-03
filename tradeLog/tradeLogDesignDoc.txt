@@ -2,7 +2,20 @@ Trade Log: A tool to log trades in conjunction with Think or Swim trading platfo
 		- Will be built using Python. I assume I will be using a comdination of pyQT and SQLite, both of which I need to learn. 
 		- Goal is to have a standalone local program. 
 
+BACK END DESIGN: 
+Process Flow: 
+	Raw Transactions --> Save to DB's --> Clean Transactions --> Save to DB's --> Full Trade --> Save to DB's --> Trade Summary --> Save to DB's
 
+Full Trade Consists of: 
+Trader, Type, Tickers, Option Type, Expected Risk, Max Risk, Notes, Date, Time, Description, Fees and Commissions, Amount
+
+Trade Summary Consists of: 
+Trader, Type, Tickers, Option Type, Expected Risk, Max Risk, Notes, Open Date, Close Date, Open Time, Close Time, Description, Net Fees and Commissions,
+	Gross P/L, Net P/L, Gross Return on Expected Risk, Net Return on Expected Risk, Gross Return on Max Risk, Net Return on Max Risk
+
+
+
+FRONT END DESIGN: 
 (A): Three Main Windows: 
 	1 - Open Trades
 	2 - Closed Trades: Simple

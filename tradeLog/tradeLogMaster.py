@@ -24,53 +24,51 @@ def transactions(csvPath, databasePaths, destination):
         dfClean.to_sql('cleanTransactions', conn, index=False, if_exists='append')
         conn.commit()
         conn.close()
-    return df
+    clearTransactions = pd.DataFrame(columns=['DATE', 'TIME', 'TYPE', 'REF #', 'DESCRIPTION', 'Misc Fees', 'Commissions & Fees', 'AMOUNT', 'BALANCE'])
+    clearTransactions.to_csv(csvPath, index=False)
 
 class trade:
     def __init__(self):
-       self.trader = None #
-       self.types = None #
-       self.tickers = None #
-       self.notes = None #
-       self.optionType = None #
-       self.expectedRisk = None #
-       self.maxRisk = None #
-       self.description = None #
-       self.dateOpen = None #
-       self.dateClose = None #
-       self.timeOpen = None #
-       self.timeClose = None #
-       self.feesAndCommissions = None #
-       self.grossPL = None #
-       self.netPL = None #
-       self.returnOnExpectedRisk = None #
-       self.returnOnMaxRisk = None #
-       self.transactions = None #
-       self.trade = None #
+       self.trader = 'None'
+       self.types = 'None'
+       self.tickers = 'None'
+       self.options = 'None'
+       self.expectedRisk = 'None'
+       self.maxRisk = 'None'
+       self.notes = 'None'
+       self.description = ''
+       self.dateOpen = 'None'
+       self.dateClose = 'None'
+       self.timeOpen = 'None'
+       self.timeClose = 'None'
+       self.feesAndCommissions = 'None'
+       self.grossPL = 'None'
+       self.netPL = 'None'
+       self.returnOnExpectedRisk = 'None'
+       self.returnOnMaxRisk = 'None'
+       self.transactions = []
        
         
-    def inputs(self, trader=None, types=None, tickers=None, notes=None, expectedRisk=None, maxRisk=None, optionType=None):
+    def inputs(self, trader=None, types=None, tickers=None, options=None, expectedRisk=None, maxRisk=None, notes=None):
         self.trader = trader
         self.types = types
         self.tickers = tickers
         self.notes = notes
         self.expectedRisk = expectedRisk
         self.maxRisk = maxRisk
-        self.optionType = optionType
+        self.options = options
         
     
-    def transactions(self, transactionList):
-        self.transactions = []
-        for x in transactionList:
-            self.transactions += x
+    def addTransaction(self, date, time, description, fc, amount):
+        transactionList = [date, time, description, fc, amount]
+        self.transactions.append(transactionList)
 
-    def close(self, databaseList, toCsv = False):
+    def close(self):
         #Set Final Variables
         df = pd.DataFrame(self.transactions)
         df.columns = ['Date', 'Time', 'Description', 'feesAndCommissions', 'Amount']
-        self.description = []
-        for x in df:
-            self.description.append(df['Description'])
+        for x in df['Description']:
+            self.description += '{} ,'.format(x)
         self.dateOpen = df['Date'].iloc[0]
         self.dateClose = df['Date'].iloc[-1]
         self.timeOpen = df['Date'].iloc[0]
@@ -85,14 +83,44 @@ class trade:
                  self.description, self.datOpen, self.dateClose, self.timeOpen, self.timeClose, self.feesAndCommissions,
                  self.grossPL, self.netPL, self.returnOnExpectedRisk, self.returnOnMaxRisk]
         
-        #Add to Databases:
-        for x in databaseList:
+    def save(self, databasePaths):
+        for x in databasePaths:
             conn = sqlite3.connect(x)
-            conn.execute("""CREATE TABLE IF NOT EXISTS fullTrades (Status TEXT, Date TEXT, Time TEXT, Description TEXT,
-                    FeesAndCommissions REAL, Amount REAL)""")
+            conn.execute('''CREATE TABLE IF NOT EXISTS fullTrades (Trader TEXT, Types TEXT, Tickers TEXT, Notes TEXT, Date TEXT, Time TEXT, 
+                                                                        Description TEXT, FeesAndCommissions REAL, Amount REAL)''')
+            conn.execute('''INSERT INTO fullTrades (Trader, Types, Tickers, Notes) VALUES(?, ?, ?, ?)''',
+                         (self.trader, self.types, self.tickers, self.options, self.expectedRisk, self.maxRisk, self.notes,))
+
+
             conn.commit()
             tradeList.to_sql('fullTrades', conn, index = False, if_exists='append')
             conn.close()
+
+def processTradeQueue(self, csvPath, databasePaths):
+    df = pd.read_csv(csvPath)
+    df['TRADER'].fillna('LEG', inplace=True)
+    fillZero = ['EXPECTED', 'MAX', 'F&C', 'AMOUNT']
+    for z in fillZero:
+        df.[z].fillna(0, inplace=True)
+
+    for x in range(len(df)):
+        trader, types, tickers, options, expected, max, notes, date, time, description, fc, amount = df.iloc[x]
+        if df['TRADER'].iloc[x] != 'LEG':
+            try:
+                trade.close(databasePaths)
+            except NameError:
+                pass
+            trade = trade()
+            trade.inputs(trader, types, tickers, options, expected, max, notes)
+        else:
+            trade.addTransaction(date, time, description, fc, amount)
+
+
+
+
+
+
+
 
 
 
