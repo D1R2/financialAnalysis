@@ -68,52 +68,76 @@ class trade:
         df = pd.DataFrame(self.transactions)
         df.columns = ['Date', 'Time', 'Description', 'feesAndCommissions', 'Amount']
         for x in df['Description']:
-            self.description += '{} ,'.format(x)
+            self.description += '{}, '.format(x)
         self.dateOpen = df['Date'].iloc[0]
         self.dateClose = df['Date'].iloc[-1]
-        self.timeOpen = df['Date'].iloc[0]
-        self.timeClose = df['Date'].iloc[-1]
+        self.timeOpen = df['Time'].iloc[0]
+        self.timeClose = df['Time'].iloc[-1]
         self.feesAndCommissions = sum(df['feesAndCommissions'])
         self.grossPL = sum(df['Amount'])
         self.netPL = self.feesAndCommissions + self.grossPL
-        self.returnOnExpectedRisk = self.netPL / self.expectedRisk
-        self.returnOnMaxRisk = self.netPL / self.maxRisk
-        
-        trade = [self.trader, self.types, self.tickers, self.notes, self.expectedRisk, self.maxRisk, self.optionType,
-                 self.description, self.datOpen, self.dateClose, self.timeOpen, self.timeClose, self.feesAndCommissions,
-                 self.grossPL, self.netPL, self.returnOnExpectedRisk, self.returnOnMaxRisk]
-        
+        self.grossReturnOnExpectedRisk = self.grossPL / self.expectedRisk * -1
+        self.netReturnOnExpectedRisk = self.netPL / self.expectedRisk * -1
+        self.grossReturnOnMaxRisk = self.grossPL / self.expectedRisk * -1
+        self.netreturnOnMaxRisk = self.netPL / self.maxRisk * -1
+
     def save(self, databasePaths):
         for x in databasePaths:
             conn = sqlite3.connect(x)
-            conn.execute('''CREATE TABLE IF NOT EXISTS fullTrades (Trader TEXT, Types TEXT, Tickers TEXT, Notes TEXT, Date TEXT, Time TEXT, 
-                                                                        Description TEXT, FeesAndCommissions REAL, Amount REAL)''')
-            conn.execute('''INSERT INTO fullTrades (Trader, Types, Tickers, Notes) VALUES(?, ?, ?, ?)''',
+            conn.execute('''CREATE TABLE IF NOT EXISTS fullTrades(Trader TEXT, Types TEXT, Tickers TEXT, Options TEXT, ExpectedRisk REAL, MaxRisk REAL,
+                                Notes TEXT, Date TEXT, Time TEXT, Description TEXT, FeesAndCommissions REAL, Amount REAL)''')
+            conn.execute('''INSERT INTO fullTrades (Trader, Types, Tickers, Options, ExpectedRisk, MaxRisk, Notes) VALUES(?, ?, ?, ?, ?, ?, ?)''',
                          (self.trader, self.types, self.tickers, self.options, self.expectedRisk, self.maxRisk, self.notes,))
-
-
+            df = pd.DataFrame(self.transactions)
+            for x in range(len(df)):
+                date, time, description, fc, amount = df.iloc[x]
+                conn.execute('''INSERT INTO fullTrades (Date, Time, Description, FeesAndCommissions, Amount) VALUES (?, ?, ?, ?, ?)''',
+                             (date, time, description, fc, amount))
+            conn.execute('''CREATE TABLE IF NOT EXISTS tradeSummaries (Trader TEXT, Types TEXT, Tickers TEXT, Options TEXT, ExpectedRisk REAL,
+                                MaxRisk REAL, Notes TEXT, Description TEXT, OpenDate TEXT, CloseDate TEXT, OpenTime TEXT, 
+                                CloseTime TEXT, FeesAndCommissions REAL, GrossPL REAL, NetPL REAL, GrossReturnOnExpectedRisk REAL,
+                                NetReturnOnExpectedRisk REAL, GrossReturnOnMaxRisk REAL, NetReturnOnMaxRisk REAL)''')
+            conn.execute('''INSERT INTO tradeSummaries (Trader, Types, Tickers, Options, ExpectedRisk, MaxRisk,
+                                Notes, Description, OpenDate, CloseDate, OpenTime, CloseTime, FeesAndCommissions, GrossPL, NetPL, 
+                                GrossReturnOnExpectedRisk, NetReturnOnExpectedRisk, GrossReturnOnMaxRisk, NetReturnOnMaxRisk) 
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                                (self.trader, self.types, self.tickers, self.options,
+                                self.expectedRisk, self.maxRisk, self.notes,  self.description, self.dateOpen,
+                                self.dateClose, self.timeOpen, self.timeClose, self.feesAndCommissions, self.grossPL,
+                                self.netPL, self.grossReturnOnExpectedRisk, self.netReturnOnExpectedRisk,
+                                self.grossReturnOnMaxRisk, self.netreturnOnMaxRisk))
             conn.commit()
-            tradeList.to_sql('fullTrades', conn, index = False, if_exists='append')
             conn.close()
 
-def processTradeQueue(self, csvPath, databasePaths):
+def processTradeQueue(csvPath, databasePaths):
     df = pd.read_csv(csvPath)
     df['TRADER'].fillna('LEG', inplace=True)
     fillZero = ['EXPECTED', 'MAX', 'F&C', 'AMOUNT']
     for z in fillZero:
-        df.[z].fillna(0, inplace=True)
-
+        df[z].fillna(0, inplace=True)
+    finalLine = []
+    for x in df.iloc[-1]:
+        finalLine.append(x)
+    tradeOn = False
     for x in range(len(df)):
         trader, types, tickers, options, expected, max, notes, date, time, description, fc, amount = df.iloc[x]
         if df['TRADER'].iloc[x] != 'LEG':
-            try:
-                trade.close(databasePaths)
-            except NameError:
-                pass
-            trade = trade()
-            trade.inputs(trader, types, tickers, options, expected, max, notes)
+            if tradeOn == True:
+                thistrade.close()
+                thistrade.save(databasePaths)
+            tradeOn = True
+            thistrade = trade()
+            thistrade.inputs(trader, types, tickers, options, expected, max, notes)
         else:
-            trade.addTransaction(date, time, description, fc, amount)
+            thistrade.addTransaction(date, time, description, fc, amount)
+            thisList = [trader, types, tickers, options, expected, max, notes, date, time, description, fc, amount]
+            if thisList == finalLine:
+                print('Final Line Matched')
+                thistrade.close()
+                thistrade.save(databasePaths)
+                break
+
+
 
 
 

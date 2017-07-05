@@ -10,7 +10,7 @@ Full Trade Consists of:
 Trader, Type, Tickers, Option Type, Expected Risk, Max Risk, Notes, Date, Time, Description, Fees and Commissions, Amount
 
 Trade Summary Consists of: 
-Trader, Type, Tickers, Option Type, Expected Risk, Max Risk, Notes, Open Date, Close Date, Open Time, Close Time, Description, Net Fees and Commissions,
+Trader, Type, Tickers, Option Type, Expected Risk, Max Risk, Notes, Description, Open Date, Close Date, Open Time, Close Time, Net Fees and Commissions,
 	Gross P/L, Net P/L, Gross Return on Expected Risk, Net Return on Expected Risk, Gross Return on Max Risk, Net Return on Max Risk
 
 
