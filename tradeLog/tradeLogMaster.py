@@ -78,7 +78,7 @@ class trade:
         self.netPL = self.feesAndCommissions + self.grossPL
         self.grossReturnOnExpectedRisk = self.grossPL / self.expectedRisk * -1
         self.netReturnOnExpectedRisk = self.netPL / self.expectedRisk * -1
-        self.grossReturnOnMaxRisk = self.grossPL / self.expectedRisk * -1
+        self.grossReturnOnMaxRisk = self.grossPL / self.maxRisk * -1
         self.netreturnOnMaxRisk = self.netPL / self.maxRisk * -1
 
     def save(self, databasePaths):
@@ -109,33 +109,40 @@ class trade:
             conn.commit()
             conn.close()
 
-def processTradeQueue(csvPath, databasePaths):
+def processTradeQueue(csvPath, databasePaths, clearQueue=False):
     df = pd.read_csv(csvPath)
     df['TRADER'].fillna('LEG', inplace=True)
     fillZero = ['EXPECTED', 'MAX', 'F&C', 'AMOUNT']
     for z in fillZero:
         df[z].fillna(0, inplace=True)
-    finalLine = []
-    for x in df.iloc[-1]:
-        finalLine.append(x)
     tradeOn = False
     for x in range(len(df)):
         trader, types, tickers, options, expected, max, notes, date, time, description, fc, amount = df.iloc[x]
-        if df['TRADER'].iloc[x] != 'LEG':
+        if df['TRADER'].iloc[x] == 'END':
+            thisTrade.close()
+            thisTrade.save(databasePaths)
+            print('Trade Queue processed. Please move trades from Trade Queue to All Trades.')
+            break
+        elif df['TRADER'].iloc[x] != 'LEG':
             if tradeOn == True:
-                thistrade.close()
-                thistrade.save(databasePaths)
+                thisTrade.close()
+                thisTrade.save(databasePaths)
             tradeOn = True
-            thistrade = trade()
-            thistrade.inputs(trader, types, tickers, options, expected, max, notes)
+            thisTrade = trade()
+            thisTrade.inputs(trader, types, tickers, options, expected, max, notes)
         else:
-            thistrade.addTransaction(date, time, description, fc, amount)
-            thisList = [trader, types, tickers, options, expected, max, notes, date, time, description, fc, amount]
-            if thisList == finalLine:
-                print('Final Line Matched')
-                thistrade.close()
-                thistrade.save(databasePaths)
-                break
+            thisTrade.addTransaction(date, time, description, fc, amount)
+    if clearQueue == True:
+        df = pd.DataFrame(columns = ['TRADER', 'TYPES', 'TICKERS', 'OPTIONS', 'EXPECTED', 'MAX', 'NOTES', 'DATE', 'TIME',
+                   'DESCRIPTION', 'F&C', 'AMOUNT'], index=False)
+        df.to_csv(csvPath)
+
+def sqlToDataFrame(databasePath, tableName):
+    conn = sqlite3.connect(databasePath)
+    string = "SELECT * FROM {}".format(tableName)
+    df = pd.read_sql_query(string, conn)
+    return df
+
 
 
 
