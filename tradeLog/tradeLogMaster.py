@@ -27,6 +27,7 @@ def transactions(csvPath, databasePaths, destination):
     clearTransactions = pd.DataFrame(columns=['DATE', 'TIME', 'TYPE', 'REF #', 'DESCRIPTION', 'Misc Fees', 'Commissions & Fees', 'AMOUNT', 'BALANCE'])
     clearTransactions.to_csv(csvPath, index=False)
 
+
 class trade:
     def __init__(self):
        self.trader = 'None'
@@ -109,6 +110,7 @@ class trade:
             conn.commit()
             conn.close()
 
+
 def processTradeQueue(csvPath, databasePaths, clearQueue=False):
     df = pd.read_csv(csvPath)
     df['TRADER'].fillna('LEG', inplace=True)
@@ -137,6 +139,7 @@ def processTradeQueue(csvPath, databasePaths, clearQueue=False):
                    'DESCRIPTION', 'F&C', 'AMOUNT'], index=False)
         df.to_csv(csvPath)
 
+
 def sqlToDataFrame(databasePath, tableName):
     conn = sqlite3.connect(databasePath)
     string = "SELECT * FROM {}".format(tableName)
@@ -144,6 +147,17 @@ def sqlToDataFrame(databasePath, tableName):
     return df
 
 
+def replaceTable(databasePaths, tableName, csvPath):
+    renameString = "ALTER TABLE {} RENAME TO temporaryOldTable".format(tableName)
+    df = pd.read_csv(csvPath)
+    for database in databasePaths:
+        conn = sqlite3.connect(database)
+        conn.execute(renameString)
+        df.to_sql(tableName, conn, index=False)
+        conn.commit()
+        conn.close()
+
+    print('Process Complete: Verify Accuracy then manually delete temporaryOldTable')
 
 
 
