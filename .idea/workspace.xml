@@ -2,11 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dcc14565-6917-49f7-83f9-a50ac655a9a8" name="Default" comment="&quot;Practicing in Pycharm&quot;">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/dbFiles/test.db" afterPath="$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/dbFiles/test.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/dbFiles/tradeLogMaster.db" afterPath="$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/dbFiles/tradeLogMaster.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/01tradeLogWorkspace.py" afterPath="$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/01tradeLogWorkspace.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/tradeExports/alltradeExport.csv" afterPath="$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/tradeExports/alltradeExport.csv" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tradeLog/tradeLogMaster.py" afterPath="$PROJECT_DIR$/tradeLog/tradeLogMaster.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/Misc/tradeLogDesignDoc.txt" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tradeLog/branch1Workspace.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tradeLog/components/daytradeAnalysis.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tradeLog/components/tradeProcessor.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tradeLog/components/traderAnalysis.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tradeLog/sampleTradesCSV.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tradeLog/sampleTradesutf8.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tradeLog/tradeLogDesignDoc.txt" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tradeLog/tradeLogWorkspacePublic.py" afterPath="$PROJECT_DIR$/tradeLog/tradeLogWorkspacePublic.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -24,8 +29,8 @@
       <file leaf-file-name="01tradeLogWorkspace.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/01tradeLogWorkspace.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1089">
-              <caret line="33" column="31" lean-forward="false" selection-start-line="33" selection-start-column="31" selection-end-line="33" selection-end-column="31" />
+            <state relative-caret-position="99">
+              <caret line="3" column="14" lean-forward="true" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -36,26 +41,8 @@
       <file leaf-file-name="tradeLogMaster.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tradeLog/tradeLogMaster.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="231">
-              <caret line="112" column="0" lean-forward="true" selection-start-line="112" selection-start-column="0" selection-end-line="112" selection-end-column="0" />
-              <folding>
-                <element signature="e#95#1517#0" expanded="false" />
-                <element signature="e#1537#6113#0" expanded="false" />
-                <element signature="e#1564#2115#0" expanded="false" />
-                <element signature="e#2261#2469#0" expanded="false" />
-                <element signature="e#6185#7384#0" expanded="false" />
-                <element signature="e#7436#7577#0" expanded="false" />
-                <element signature="e#7637#8033#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="processOldTrades.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/Misc/processOldTrades.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="646">
-              <caret line="28" column="20" lean-forward="true" selection-start-line="28" selection-start-column="20" selection-end-line="28" selection-end-column="20" />
+            <state relative-caret-position="1240">
+              <caret line="56" column="26" lean-forward="true" selection-start-line="56" selection-start-column="26" selection-end-line="56" selection-end-column="26" />
               <folding />
             </state>
           </provider>
@@ -110,6 +97,7 @@
         <option value="$PROJECT_DIR$/../enjoyTheJourney/notes/pythonSQLite3.txt" />
         <option value="$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/01tradeLogWorkspace.py" />
         <option value="$PROJECT_DIR$/tradeLog/tradeLogMaster.py" />
+        <option value="$PROJECT_DIR$/tradeLog/tradeLogWorkspacePublic.py" />
       </list>
     </option>
   </component>
@@ -241,6 +229,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\David\Desktop\gitHome\tradingPrivate\tradeLogPrivate\Misc" />
       <recent name="C:\Users\David\Desktop\gitHome\tradingPrivate\tradeLogPrivate\accountStatements" />
       <recent name="C:\Users\David\Desktop\gitHome\tradingPrivate\tradeLogPrivate" />
       <recent name="C:\Users\David\Desktop\gitHome\tradingPublic\tradeLog" />
@@ -416,7 +405,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="339" y="-1811" width="2902" height="1762" extended-state="7" />
+    <frame x="339" y="-1811" width="2902" height="1762" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17395833" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -444,7 +433,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="2" />
+      <option name="time" value="3" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -486,15 +475,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2706">
           <caret line="82" column="0" lean-forward="true" selection-start-line="82" selection-start-column="0" selection-end-line="82" selection-end-column="0" />
-          <folding>
-            <element signature="e#95#1517#0" expanded="false" />
-            <element signature="e#1537#6113#0" expanded="false" />
-            <element signature="e#1564#2115#0" expanded="false" />
-            <element signature="e#2261#2469#0" expanded="false" />
-            <element signature="e#6185#7384#0" expanded="false" />
-            <element signature="e#7436#7577#0" expanded="false" />
-            <element signature="e#7637#8033#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -527,15 +508,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3366">
           <caret line="136" column="34" lean-forward="false" selection-start-line="136" selection-start-column="34" selection-end-line="136" selection-end-column="34" />
-          <folding>
-            <element signature="e#95#1517#0" expanded="false" />
-            <element signature="e#1537#6113#0" expanded="false" />
-            <element signature="e#1564#2115#0" expanded="false" />
-            <element signature="e#2261#2469#0" expanded="false" />
-            <element signature="e#6185#7384#0" expanded="false" />
-            <element signature="e#7436#7577#0" expanded="false" />
-            <element signature="e#7637#8033#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -559,15 +532,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1353">
           <caret line="41" column="30" lean-forward="true" selection-start-line="41" selection-start-column="30" selection-end-line="41" selection-end-column="30" />
-          <folding>
-            <element signature="e#95#1517#0" expanded="false" />
-            <element signature="e#1537#6113#0" expanded="false" />
-            <element signature="e#1564#2115#0" expanded="false" />
-            <element signature="e#2261#2469#0" expanded="false" />
-            <element signature="e#6185#7384#0" expanded="false" />
-            <element signature="e#7436#7577#0" expanded="false" />
-            <element signature="e#7637#8033#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -589,15 +554,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="561">
           <caret line="17" column="20" lean-forward="true" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
-          <folding>
-            <element signature="e#95#1517#0" expanded="false" />
-            <element signature="e#1537#6113#0" expanded="false" />
-            <element signature="e#1564#2115#0" expanded="false" />
-            <element signature="e#2261#2469#0" expanded="false" />
-            <element signature="e#6185#7384#0" expanded="false" />
-            <element signature="e#7436#7577#0" expanded="false" />
-            <element signature="e#7637#8033#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -645,15 +602,25 @@
     <entry file="file://$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/Misc/processOldTrades.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="646">
-          <caret line="28" column="20" lean-forward="true" selection-start-line="28" selection-start-column="20" selection-end-line="28" selection-end-column="20" />
+          <caret line="28" column="20" lean-forward="false" selection-start-line="28" selection-start-column="20" selection-end-line="28" selection-end-column="20" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tradeLog/tradeLogWorkspacePublic.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1287">
+          <caret line="39" column="19" lean-forward="true" selection-start-line="39" selection-start-column="19" selection-end-line="39" selection-end-column="19" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/../tradingPrivate/tradeLogPrivate/01tradeLogWorkspace.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1089">
-          <caret line="33" column="31" lean-forward="false" selection-start-line="33" selection-start-column="31" selection-end-line="33" selection-end-column="31" />
+        <state relative-caret-position="99">
+          <caret line="3" column="14" lean-forward="true" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
@@ -662,17 +629,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tradeLog/tradeLogMaster.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="112" column="0" lean-forward="true" selection-start-line="112" selection-start-column="0" selection-end-line="112" selection-end-column="0" />
-          <folding>
-            <element signature="e#95#1517#0" expanded="false" />
-            <element signature="e#1537#6113#0" expanded="false" />
-            <element signature="e#1564#2115#0" expanded="false" />
-            <element signature="e#2261#2469#0" expanded="false" />
-            <element signature="e#6185#7384#0" expanded="false" />
-            <element signature="e#7436#7577#0" expanded="false" />
-            <element signature="e#7637#8033#0" expanded="false" />
-          </folding>
+        <state relative-caret-position="1240">
+          <caret line="56" column="26" lean-forward="true" selection-start-line="56" selection-start-column="26" selection-end-line="56" selection-end-column="26" />
+          <folding />
         </state>
       </provider>
     </entry>
