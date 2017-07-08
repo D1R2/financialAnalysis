@@ -48,6 +48,7 @@ class trade:
        self.returnOnExpectedRisk = 'None'
        self.returnOnMaxRisk = 'None'
        self.transactions = []
+       self.tradeSummary = 'None'
        
         
     def inputs(self, trader=None, types=None, tickers=None, options=None, expectedRisk=None, maxRisk=None, notes=None):
@@ -81,6 +82,11 @@ class trade:
         self.netReturnOnExpectedRisk = self.netPL / self.expectedRisk * -1
         self.grossReturnOnMaxRisk = self.grossPL / self.maxRisk * -1
         self.netreturnOnMaxRisk = self.netPL / self.maxRisk * -1
+        self.tradeSummary = [self.trader, self.types, self.tickers, self.options,
+                                self.expectedRisk, self.maxRisk, self.notes,  self.description, self.dateOpen,
+                                self.dateClose, self.timeOpen, self.timeClose, self.feesAndCommissions, self.grossPL,
+                                self.netPL, self.grossReturnOnExpectedRisk, self.netReturnOnExpectedRisk,
+                                self.grossReturnOnMaxRisk, self.netreturnOnMaxRisk]
 
     def save(self, databasePaths):
         for x in databasePaths:
@@ -111,33 +117,45 @@ class trade:
             conn.close()
 
 
-def processTradeQueue(csvPath, databasePaths, clearQueue=False):
-    df = pd.read_csv(csvPath)
-    df['TRADER'].fillna('LEG', inplace=True)
-    fillZero = ['EXPECTED', 'MAX', 'F&C', 'AMOUNT']
-    for z in fillZero:
-        df[z].fillna(0, inplace=True)
-    tradeOn = False
-    for x in range(len(df)):
-        trader, types, tickers, options, expected, max, notes, date, time, description, fc, amount = df.iloc[x]
-        if df['TRADER'].iloc[x] == 'END':
-            thisTrade.close()
-            thisTrade.save(databasePaths)
-            print('Trade Queue processed. Please move trades from Trade Queue to All Trades.')
-            break
-        elif df['TRADER'].iloc[x] != 'LEG':
-            if tradeOn == True:
+
+
+def processTradeQueue(csvPath, databasePaths, clearQueue=False, end=False):
+    if end == False:
+        print('Please change the last line of the tradequeue to "END"')
+    else:
+        batch = []
+        df = pd.read_csv(csvPath)
+        df['TRADER'].fillna('LEG', inplace=True)
+        fillZero = ['EXPECTED', 'MAX', 'F&C', 'AMOUNT']
+        for z in fillZero:
+            df[z].fillna(0, inplace=True)
+        tradeOn = False
+        for x in range(len(df)):
+            trader, types, tickers, options, expected, max, notes, date, time, description, fc, amount = df.iloc[x]
+            if df['TRADER'].iloc[x] == 'END':
                 thisTrade.close()
+                batch.append(thisTrade.tradeSummary)
                 thisTrade.save(databasePaths)
-            tradeOn = True
-            thisTrade = trade()
-            thisTrade.inputs(trader, types, tickers, options, expected, max, notes)
-        else:
-            thisTrade.addTransaction(date, time, description, fc, amount)
-    if clearQueue == True:
-        df = pd.DataFrame(columns = ['TRADER', 'TYPES', 'TICKERS', 'OPTIONS', 'EXPECTED', 'MAX', 'NOTES', 'DATE', 'TIME',
-                   'DESCRIPTION', 'F&C', 'AMOUNT'], index=False)
-        df.to_csv(csvPath)
+                print('Trade Queue processed. Please move trades from Trade Queue to All Trades.')
+                print('Please set end = False')
+                print('Please reset Workspace variables.')
+                break
+            elif df['TRADER'].iloc[x] != 'LEG':
+                if tradeOn == True:
+                    thisTrade.close()
+                    batch.append(thisTrade.tradeSummary)
+                    thisTrade.save(databasePaths)
+                tradeOn = True
+                thisTrade = trade()
+                thisTrade.inputs(trader, types, tickers, options, expected, max, notes)
+            else:
+                thisTrade.addTransaction(date, time, description, fc, amount)
+        if clearQueue == True:
+            df = pd.DataFrame(columns = ['TRADER', 'TYPES', 'TICKERS', 'OPTIONS', 'EXPECTED', 'MAX', 'NOTES', 'DATE', 'TIME',
+                       'DESCRIPTION', 'F&C', 'AMOUNT'], index=False)
+            df.to_csv(csvPath)
+        batchReport = pd.DataFrame(batch)
+        batchReport.to_csv('batchReport.csv', index = False)
 
 
 def sqlToDataFrame(databasePath, tableName):
