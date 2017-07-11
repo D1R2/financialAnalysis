@@ -121,7 +121,7 @@ class trade:
 
 def processTradeQueue(csvPath, databasePaths, clearQueue=False, end=False):
     if end == False:
-        print('Please change the last line of the tradequeue to "END"')
+        print('Please change the last line of the tradequeue to "END" and set "end=True", then re-run')
     else:
         batch = []
         df = pd.read_csv(csvPath)
@@ -152,7 +152,7 @@ def processTradeQueue(csvPath, databasePaths, clearQueue=False, end=False):
                 thisTrade.addTransaction(date, time, description, fc, amount)
         if clearQueue == True:
             df = pd.DataFrame(columns = ['TRADER', 'TYPES', 'TICKERS', 'OPTIONS', 'EXPECTED', 'MAX', 'NOTES', 'DATE', 'TIME',
-                       'DESCRIPTION', 'F&C', 'AMOUNT'], index=False)
+                       'DESCRIPTION', 'F&C', 'AMOUNT'])
             df.to_csv(csvPath)
         batchReport = pd.DataFrame(batch)
         batchReport.to_csv('batchReport.csv', index = False)
