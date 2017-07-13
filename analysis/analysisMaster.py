@@ -2,6 +2,94 @@ import os
 import sqlite3
 import pandas as pd
 
+
+class TickerData:
+    #Class for insertion and retrieval of all data related to a given ticker.
+    pass
+
+class Analyze:
+    #Class containing functions to analyze a single set of data.
+    #Would like to add functions for: Re-sampling, reversing, indicators.
+    def __init__(self, df, yahoo=False):
+        print('''WARNING: Analyze assumes data is formatted Oldest to Newest, and that \ 
+                columns [Open, High, Low, Close, Volume] exist and are correct. \
+                When using Yahoo data, set yahoo=True or run self.yahoo to change Close = Adj Close.''')
+        self.df = df
+        if yahoo==True:
+            self.yahoo()
+        self.df['highOpen'] = (self.df.High - self.df.Open) / self.df.Open
+        self.df['lowOpen'] = (self.df.Low - self.df.Open) / self.df.Open
+        self.df['lowOpenAbs'] = abs(self.df.lowOpen)
+        self.df['closeOpen'] = (self.df.Close - self.df.Open) / self.df.Open
+        self.df['openPrevClose'] = (self.df.Open.shift(-1) - self.df.Close) / self.df.Close
+        self.df['highPrevClose'] = (self.df.High.shift(-1) - self.df.Close) / self.df.Close
+        self.df['lowPrevClose'] = (self.df.Low.shift(-1) - self.df.Close) / self.df.Close
+        self.df['lowPrevCloseAbs'] = abs(self.df.lowPrevClose)
+        self.df['closePrevClose'] = (self.df.Close.shift(-1) - self.df.Close) / self.df.Close
+
+        self.filterSet =[-.05, -.045, -.04, -.035, -.03, -.025, -.02, -.0175, -.015, -.0125, -.01,
+                     -.009, -.008, -.007, -.006, -.005, -.004, -.003, -.002, -.001, 0, .001,
+                     .002, .003, .004, .005, .006, .007, .008, .009, .01, .0125, .015, .0175, .02,
+                     .025, .03, .035, .04, .045, .05]
+        self.dfSimpleProbabilities= None
+
+    def yahoo(self):
+        self.df['Close'] = self.df['Adj Close']
+
+    def simpleProbabilities(self, filterSet=False, price=0, csv = False):
+        """Calculates simple probabilities of a given move. Except for priceMove and priceTarget,
+            name firstSecond = first - Second, (first *Minus* Second)"""
+        if filterSet == False:
+            filterSet = self.filterSet
+        else:
+            filterSet = filterSet
+        priceMove = []
+        priceTarget = []
+        highOpen = []
+        lowOpen = []
+        bothFromOpen = []
+        closeOpenGreater = []
+        closeOpenLess = []
+        openPrevCloseGreater = []
+        openPrevCloseLess = []
+        highPrevClose = []
+        lowPrevClose = []
+        bothFromPrevClose = []
+        closePrevCloseGreater = []
+        closePrevCloseLess = []
+        dfLength = len(self.df)
+        for x in filterSet:
+            priceMove.append(x*price)
+            priceTarget.append((x*price)+price)
+            highOpen.append(len(self.df[self.df.highOpen > x]) / dfLength)
+            lowOpen.append(len(self.df[self.df.lowOpen < x]) / dfLength)
+            bothFromOpen.append(len(self.df[(self.df.highOpen > x) & (self.df.lowOpenAbs > x)]) / dfLength)
+            closeOpenGreater.append(len(self.df[self.df.closeOpen > x]) / dfLength)
+            closeOpenLess.append(len(self.df[self.df.closeOpen < x]) / dfLength)
+            openPrevCloseGreater.append(len(self.df[self.df.openPrevClose > x]) / dfLength)
+            openPrevCloseLess.append(len(self.df[self.df.openPrevClose < x]) / dfLength)
+            highPrevClose.append(len(self.df[self.df.highPrevClose > x]) / dfLength)
+            lowPrevClose.append(len(self.df[self.df.lowPrevClose < x]) / dfLength)
+            bothFromPrevClose.append(len(self.df[(self.df.highPrevClose > x) & (self.df.lowPrevCloseAbs > x)]) / dfLength)
+            closePrevCloseGreater.append(len(self.df[self.df.closePrevClose > x]) / dfLength)
+            closePrevCloseLess.append(len(self.df[self.df.closePrevClose < x]) / dfLength)
+        dfCols = {'filterSet':filterSet, 'priceMove':priceMove, 'priceTarget':priceTarget, 'highOpen':highOpen,
+                  'lowOpen':lowOpen, 'bothOpen':bothFromOpen, 'closeOpenGreater':closeOpenGreater,
+                  'closeOpenLess':closeOpenLess, 'openPrevCloseGreater':openPrevCloseGreater,
+                  'openPrevCloseLess':openPrevCloseLess, 'highPrevClose':highPrevClose, 'lowPrevClose':lowPrevClose,
+                  'bothFromPrevClose':bothFromPrevClose, 'closePrevCloseGreater':closePrevCloseGreater,
+                  'closePrevCloseLess':closePrevCloseLess}
+        self.dfSimpleProbabilities = pd.DataFrame.from_dict(dfCols)
+
+        if csv != False:
+            self.dfSimpleProbabilities.to_csv(csv)
+        print('WARNING: Results have not yet been verified. Please verify and remove this print statement.')
+        print('Function assumes data is formatted Oldest to Newest. Please ensure this is so before continuing.')
+        print('Simple probablities of a give move. Returns df of resutls. If csv = path, outputs to csv.')
+
+        return self.dfSimpleProbabilities
+
+
 def quantQuoteData(folderPath, tableName, databasePaths):
     #Set SQLite3 strings:
     createTable = '''CREATE TABLE IF NOT EXISTS {}(Date INTEGER, Time INTEGER, Open REAL, High REAL, Low REAL,
@@ -28,48 +116,3 @@ def quantQuoteData(folderPath, tableName, databasePaths):
                     conn.commit()
                 finally:
                     conn.close()
-
-def pullFromDatabase(tableName, databasePath, date, times, columns):
-    pass
-
-
-def openDev(df, filterSet=False):
-    # Calculate the simple probability of a given deviation from the open price.
-    # Goal is to return a df with probabilities of given move above or below open in percentage terms.
-
-    if filterSet == False:
-        filterSet = [-.05, -.045, -.04, -.035, -.03, -.025, -.02, -.0175, -.015, -.0125, -.01
-                     - .009, -.008, -.007, -.006, -.005, -.004, -.003, -.002, -.001, 0, .001,
-                     .002, .003, .004, .005, .006, .007, .008, .009, .01, .0125, .015, .0175, .02,
-                     .025, .03, .035, .04, .045, .05]
-    else:
-        pass
-
-    df['highDev'] = (df.High - df.Open) / df.Open
-    df['lowDev'] = (df.Low - df.Open) / df.Open
-    df['lowDevAbs'] = abs(df.lowDev)
-    df['closeDev'] = (df.Close - df.Open) / df.Open
-
-    dfOpenDev = pd.DataFrame(index=filterSet)
-    highDevCol = []
-    lowDevCol = []
-    bothDevCol = []
-    closeDevGreater = []
-    closeDevLess = []
-
-    for x in filterSet:
-        highDevCol.append(len(df[df.highDev > x]) / len(df))
-        lowDevCol.append(len(df[df.lowDev < x]) / len(df))
-        closeDevGreater.append(len(df[df.closeDev > x]) / len(df))
-        closeDevLess.append(len(df[df.closeDev < x]) / len(df))
-        dfFiltered = df[df.highDev > x]
-        dfFiltered = dfFiltered[dfFiltered.lowDevAbs > x]
-        bothDevCol.append(len(dfFiltered) / len(df))
-
-    dfOpenDev['highDev'] = highDevCol
-    dfOpenDev['lowDev'] = lowDevCol
-    dfOpenDev['bothDev'] = bothDevCol
-    dfOpenDev['closeDevGreater'] = closeDevGreater
-    dfOpenDev['closeDevLess'] = closeDevLess
-
-    return dfOpenDev
