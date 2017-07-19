@@ -48,6 +48,8 @@ class Analyze:
         highOpen = []
         lowOpen = []
         bothFromOpen = []
+        neitherFromOpen = []
+        eitherFromOpen = []
         closeOpenGreater = []
         closeOpenLess = []
         openPrevCloseGreater = []
@@ -55,6 +57,8 @@ class Analyze:
         highPrevClose = []
         lowPrevClose = []
         bothFromPrevClose = []
+        neitherFromPrevClose = []
+        eitherFromPrevClose = []
         closePrevCloseGreater = []
         closePrevCloseLess = []
         dfLength = len(self.df)
@@ -64,6 +68,8 @@ class Analyze:
             highOpen.append(len(self.df[self.df.highOpen > x]) / dfLength)
             lowOpen.append(len(self.df[self.df.lowOpen < x]) / dfLength)
             bothFromOpen.append(len(self.df[(self.df.highOpen > x) & (self.df.lowOpenAbs > x)]) / dfLength)
+            eitherFromOpen.append(len(self.df[(self.df.highOpen > x) | (self.df.lowOpenAbs >x)]) / dfLength)
+            neitherFromOpen.append(len(self.df[(self.df.highOpen < x) & (self.df.lowOpenAbs < x)]) / dfLength)
             closeOpenGreater.append(len(self.df[self.df.closeOpen > x]) / dfLength)
             closeOpenLess.append(len(self.df[self.df.closeOpen < x]) / dfLength)
             openPrevCloseGreater.append(len(self.df[self.df.openPrevClose > x]) / dfLength)
@@ -71,14 +77,17 @@ class Analyze:
             highPrevClose.append(len(self.df[self.df.highPrevClose > x]) / dfLength)
             lowPrevClose.append(len(self.df[self.df.lowPrevClose < x]) / dfLength)
             bothFromPrevClose.append(len(self.df[(self.df.highPrevClose > x) & (self.df.lowPrevCloseAbs > x)]) / dfLength)
+            eitherFromPrevClose.append(len(self.df[(self.df.highPrevClose > x) | (self.df.lowPrevCloseAbs > x)]) / dfLength)
+            neitherFromPrevClose.append(len(self.df[(self.df.highPrevClose < x) & (self.df.lowPrevCloseAbs < x)]) / dfLength)
             closePrevCloseGreater.append(len(self.df[self.df.closePrevClose > x]) / dfLength)
             closePrevCloseLess.append(len(self.df[self.df.closePrevClose < x]) / dfLength)
-        dfCols = {'filterSet':filterSet, 'priceMove':priceMove, 'priceTarget':priceTarget, 'highOpen':highOpen,
-                  'lowOpen':lowOpen, 'bothOpen':bothFromOpen, 'closeOpenGreater':closeOpenGreater,
-                  'closeOpenLess':closeOpenLess, 'openPrevCloseGreater':openPrevCloseGreater,
-                  'openPrevCloseLess':openPrevCloseLess, 'highPrevClose':highPrevClose, 'lowPrevClose':lowPrevClose,
-                  'bothFromPrevClose':bothFromPrevClose, 'closePrevCloseGreater':closePrevCloseGreater,
-                  'closePrevCloseLess':closePrevCloseLess}
+        dfCols = {'a-Filter Set':filterSet, 'b-Price Move':priceMove, 'c-Prive Target':priceTarget, 'd-highOpen':highOpen,
+                  'e-lowOpen':lowOpen, 'f-bothOpen':bothFromOpen, 'g-eitherFromOpen':eitherFromOpen, 'h-closeOpenGreater':closeOpenGreater,
+                  'i-closeOpenLess':closeOpenLess, 'j-openPrevCloseGreater':openPrevCloseGreater,
+                  'k-openPrevCloseLess':openPrevCloseLess, 'l-highPrevClose':highPrevClose, 'm-lowPrevClose':lowPrevClose,
+                  'n-bothFromPrevClose':bothFromPrevClose, 'o-eitherFromPrevClose':eitherFromPrevClose, 'p - closePrevCloseGreater':closePrevCloseGreater,
+                  'q - closePrevCloseLess':closePrevCloseLess, 'r-neitherFromOpen':neitherFromOpen,
+                  's-neitherFromPrevClose':neitherFromPrevClose}
         self.dfSimpleProbabilities = pd.DataFrame.from_dict(dfCols)
 
         if csv != False:
