@@ -11,12 +11,46 @@ class Analyze:
     #Class containing functions to analyze a single set of data.
     #Would like to add functions for: Re-sampling, reversing, indicators.
     def __init__(self, df, yahoo=False):
-        print('''WARNING: Analyze assumes data is formatted Oldest to Newest, and that \ 
-                columns [Open, High, Low, Close, Volume] exist and are correct. \
-                When using Yahoo data, set yahoo=True or run self.yahoo to change Close = Adj Close.''')
-        self.df = df
+        self.df = df.copy()
         if yahoo==True:
-            self.yahoo()
+            self.adjClose()
+        self.filterSet =[-.05, -.045, -.04, -.035, -.03, -.025, -.02, -.0175, -.015, -.0125, -.01,
+                     -.009, -.008, -.007, -.006, -.005, -.004, -.003, -.002, -.001, 0, .001,
+                     .002, .003, .004, .005, .006, .007, .008, .009, .01, .0125, .015, .0175, .02,
+                     .025, .03, .035, .04, .045, .05]
+        self.dfSimpleProbabilities= None
+
+    def adjClose(self):
+        '''Sets close equal to Adjusted Close'''
+        self.df['Close'] = self.df['Adj Close']
+
+    def resample(self, frequency):
+        df = self.df
+        periods = len(df)
+        index = pd.date_range('01,01,2000', periods=periods, freq='T')
+        df.index = index
+
+        freq = '{}T'.format(frequency)
+        dfFirst = df.resample(freq).first()
+        dfLast = df.resample(freq).last()
+        dfMax = df.resample(freq).max()
+        dfMin = df.resample(freq).min()
+        dfSum = df.resample(freq).sum()
+
+        dfResampled = pd.DataFrame()
+        dfResampled['Date'] = dfFirst.Date
+        dfResampled['Open'] = dfFirst.Open
+        dfResampled['High'] = dfMax.High
+        dfResampled['Low'] = dfMin.Low
+        dfResampled['Close'] = dfLast.Close
+        dfResampled['Volume'] = dfSum.Volume
+
+        self.df = dfResampled
+
+
+
+    def differenceCols(self):
+        '''Sets columns for various standard column differences in percentage terms.'''
         self.df['highOpen'] = (self.df.High - self.df.Open) / self.df.Open
         self.df['lowOpen'] = (self.df.Low - self.df.Open) / self.df.Open
         self.df['lowOpenAbs'] = abs(self.df.lowOpen)
@@ -26,15 +60,7 @@ class Analyze:
         self.df['lowPrevClose'] = (self.df.Low.shift(-1) - self.df.Close) / self.df.Close
         self.df['lowPrevCloseAbs'] = abs(self.df.lowPrevClose)
         self.df['closePrevClose'] = (self.df.Close.shift(-1) - self.df.Close) / self.df.Close
-
-        self.filterSet =[-.05, -.045, -.04, -.035, -.03, -.025, -.02, -.0175, -.015, -.0125, -.01,
-                     -.009, -.008, -.007, -.006, -.005, -.004, -.003, -.002, -.001, 0, .001,
-                     .002, .003, .004, .005, .006, .007, .008, .009, .01, .0125, .015, .0175, .02,
-                     .025, .03, .035, .04, .045, .05]
-        self.dfSimpleProbabilities= None
-
-    def yahoo(self):
-        self.df['Close'] = self.df['Adj Close']
+        self.df['highLow'] = (self.df.High - self.df.Low) / self.df.Open
 
     def simpleProbabilities(self, filterSet=False, price=0, csv = False):
         """Calculates simple probabilities of a given move. Except for priceMove and priceTarget,
@@ -91,7 +117,8 @@ class Analyze:
         self.dfSimpleProbabilities = pd.DataFrame.from_dict(dfCols)
 
         if csv != False:
-            self.dfSimpleProbabilities.to_csv(csv)
+            self.dfSimpleProbabilities.to_csv(csv, index=False)
+
         print('WARNING: Results have not yet been verified. Please verify and remove this print statement.')
         print('Function assumes data is formatted Oldest to Newest. Please ensure this is so before continuing.')
         print('Simple probablities of a give move. Returns df of resutls. If csv = path, outputs to csv.')

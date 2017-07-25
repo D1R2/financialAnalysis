@@ -1,7 +1,7 @@
 import pandas as pd
 import sqlite3
 
-def transactions(csvPath, databasePaths, destination):
+def transactions(csvPath, databasePaths):
     # Import csv to DF:
     df = pd.read_csv(csvPath)
     df.columns = ['Date', 'Time', 'Type', 'Reference', 'Description', 'MiscFees', 'Commissions', 'Amount', 'Balance']
@@ -11,7 +11,7 @@ def transactions(csvPath, databasePaths, destination):
     dfClean['feesAndCommissions'] = dfClean['MiscFees'] + dfClean['Commissions']
     dfClean = dfClean[(dfClean['Type'] == 'TRD') | (dfClean['Type'] == 'RAD')]
     dfClean = dfClean[['Date', 'Time', 'Description', 'feesAndCommissions', 'Amount']]
-    dfClean.to_csv(destination, index=False)
+    dfClean.to_csv(csvPath, index=False)
 
     # Store in Master and Backup Database:
     for x in databasePaths:
@@ -24,8 +24,6 @@ def transactions(csvPath, databasePaths, destination):
         dfClean.to_sql('cleanTransactions', conn, index=False, if_exists='append')
         conn.commit()
         conn.close()
-    clearTransactions = pd.DataFrame(columns=['DATE', 'TIME', 'TYPE', 'REF #', 'DESCRIPTION', 'Misc Fees', 'Commissions & Fees', 'AMOUNT', 'BALANCE'])
-    clearTransactions.to_csv(csvPath, index=False)
 
 
 class trade:
@@ -119,43 +117,54 @@ class trade:
 
 
 
-def processTradeQueue(csvPath, databasePaths, clearQueue=False, end=False):
-    if end == False:
-        print('Please change the last line of the tradequeue to "END" and set "end=True", then re-run')
-    else:
-        batch = []
-        df = pd.read_csv(csvPath)
-        df['TRADER'].fillna('LEG', inplace=True)
-        fillZero = ['EXPECTED', 'MAX', 'F&C', 'AMOUNT']
-        for z in fillZero:
-            df[z].fillna(0, inplace=True)
-        tradeOn = False
-        for x in range(len(df)):
-            trader, types, tickers, options, expected, max, notes, date, time, description, fc, amount = df.iloc[x]
-            if df['TRADER'].iloc[x] == 'END':
+def processTradeQueue(csvPath, databasePaths, clearQueue=False):
+    '''This function processes the excel trade Queue, giving final stats and saving them to a database.
+    This is a sub-optimal function for this task because it utilizes the 'trade' class, which was written expressly
+    to be used in conjunction with a GUI on single trades. Until I get the GUI up and running though, Excel files and
+    this function are the placeholder. '''
+
+    batch = []
+    df = pd.read_csv(csvPath)
+    df['TRADER'].fillna('LEG', inplace=True)
+    fillZero = ['EXPECTED', 'MAX', 'F&C', 'AMOUNT']
+    for z in fillZero:
+        df[z].fillna(0, inplace=True)
+    df2 = pd.DataFrame(['END'], columns=['TRADER'])
+    df = df.append(df2)
+
+    tradeOn = False
+    for x in range(len(df)):
+        trader, types, tickers, options, expected, max, notes, date, time, description, fc, amount = df.iloc[x]
+        if df['TRADER'].iloc[x] == 'END':
+            thisTrade.close()
+            batch.append(thisTrade.tradeSummary)
+            thisTrade.save(databasePaths)
+            print('Trade Queue processed. Please move trades from Trade Queue to All Trades.')
+            print('Please set end = False')
+            print('Please reset Workspace variables.')
+            break
+        elif df['TRADER'].iloc[x] != 'LEG':
+            if tradeOn == True:
                 thisTrade.close()
                 batch.append(thisTrade.tradeSummary)
                 thisTrade.save(databasePaths)
-                print('Trade Queue processed. Please move trades from Trade Queue to All Trades.')
-                print('Please set end = False')
-                print('Please reset Workspace variables.')
-                break
-            elif df['TRADER'].iloc[x] != 'LEG':
-                if tradeOn == True:
-                    thisTrade.close()
-                    batch.append(thisTrade.tradeSummary)
-                    thisTrade.save(databasePaths)
-                tradeOn = True
-                thisTrade = trade()
-                thisTrade.inputs(trader, types, tickers, options, expected, max, notes)
-            else:
-                thisTrade.addTransaction(date, time, description, fc, amount)
-        if clearQueue == True:
-            df = pd.DataFrame(columns = ['TRADER', 'TYPES', 'TICKERS', 'OPTIONS', 'EXPECTED', 'MAX', 'NOTES', 'DATE', 'TIME',
-                       'DESCRIPTION', 'F&C', 'AMOUNT'])
-            df.to_csv(csvPath)
-        batchReport = pd.DataFrame(batch)
-        batchReport.to_csv('batchReport.csv', index = False)
+            tradeOn = True
+            thisTrade = trade()
+            thisTrade.inputs(trader, types, tickers, options, expected, max, notes)
+        else:
+            thisTrade.addTransaction(date, time, description, fc, amount)
+
+    if clearQueue == True:
+        df = pd.DataFrame(columns = ['TRADER', 'TYPES', 'TICKERS', 'OPTIONS', 'EXPECTED', 'MAX', 'NOTES', 'DATE', 'TIME',
+                   'DESCRIPTION', 'F&C', 'AMOUNT'])
+        df.to_csv(csvPath, index = False)
+
+    batchReport = pd.DataFrame(batch, columns = ['TRADER', 'TYPES', 'TICKERS', 'OPTIONS', 'EXPECTED', 'MAX', 'NOTES',
+                                                 'DESCRIPTION', 'OPEN DATE', 'CLOSE DATE', 'OPEN TIME', 'CLOSE TIME',
+                                                 'FEES AND COMMISSIONS', 'GROSS PL', 'NET PL', 'GROSS RETURN ON EXPECTED RISK',
+                                                 'NET RETURN ON EXPECTED RISK', 'GROSS RETURN ON MAX RISK',
+                                                 'NET RETURN ON MAX RISK'])
+    batchReport.to_csv('batchReport.csv', index = False)
 
 
 def sqlToDataFrame(databasePath, tableName):
