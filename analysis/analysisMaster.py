@@ -125,6 +125,52 @@ class Analyze:
 
         return self.dfSimpleProbabilities
 
+    def simpleProbabilitiesNew(self, filterSet=None, price=0, csv = None):
+        """Calculates simple probabilities of a given move. Except for priceMove and priceTarget,
+            name firstSecond = first - Second, (first *Minus* Second)"""
+
+        filterSet = filterSet or self.filterSet
+
+        self.dfProbabilities = pd.DataFrame()
+
+        newColumns = [
+            ['FilterSet', 'x'],
+            ['Price Move', 'x * price'],
+            ['Price Target', 'x * price + price'],
+            ['High - Open', 'self.df.highOpen > float(x)'],
+            ['Low - Open', 'self.df.lowOpen < float(x)'],
+            ['Both from Open', '(self.df.highOpen > float(x)) & (self.df.lowOpenAbs > float(x))'],
+            ['Either from Open', '(self.df.highOpen > float(x)) | (self.df.lowOpenAbs > float(x))'],
+            ['Neither from Open', '(self.df.highOpen < float(x)) & (self.df.lowOpenAbs < float(x))'],
+            ['Close - Open >', 'self.df.closeOpen > float(x)'],
+            ['Close - Open <', 'self.df.closeOpen < float(x)'],
+            ['Open - Prev Close >', 'self.df.openPrevClose > float(x)'],
+            ['Open - Prev Close <',  'self.df.openPrevClose < float(x)'],
+            ['High - Prev Close',  'self.df.highPrevClose > float(x)'],
+            ['Low - Prev Close',  'self.df.lowPrevClose < float(x)'],
+            ['Both from Prev Close',  '(self.df.highPrevClose > float(x)) & (self.df.lowPrevCloseAbs > float(x))'],
+            ['Either from Prev Close', '(self.df.highPrevClose > float(x)) | (self.df.lowPrevCloseAbs > float(x))'],
+            ['Neither from Prev Close', '(self.df.highPrevClose < float(x)) & (self.df.lowPrevCloseAbs < float(x))'],
+            ['Close - Prev Close >', 'self.df.closePrevClose > float(x)'],
+            ['Close - Prev Close <',  'self.df.closePrevClose < float(x)']]
+
+        dfLength = len(self.df)
+
+        for name, criteria in newColumns:
+            newColumn = []
+
+            for x in filterSet:
+                string = 'self.df[{}]'.format(criteria)
+                dfResult = exec(string)
+                result = len(df)
+                result = self.df[self.df.lowPrevCloseAbs > x]
+                newColumn.append(result)
+            self.dfProbabilities[name] = newColumn
+
+        if csv is not None:
+            self.dfSimpleProbabilities.to_csv(csv, index=False)
+
+        return self.dfProbabilities
 
 def quantQuoteData(folderPath, tableName, databasePaths):
     #Set SQLite3 strings:
