@@ -129,8 +129,8 @@ def processTradeQueue(csvPath, databasePaths, clearQueue=False):
     fillZero = ['EXPECTED', 'MAX', 'F&C', 'AMOUNT']
     for z in fillZero:
         df[z].fillna(0, inplace=True)
-    df2 = pd.DataFrame(['END'], columns=['TRADER'])
-    df = df.append(df2)
+    # df2 = pd.DataFrame(['END'], columns=['TRADER'])
+    # df = df.append(df2)
 
     tradeOn = False
     for x in range(len(df)):
